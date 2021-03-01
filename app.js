@@ -13,6 +13,18 @@ class Card {
         this.faceCard = faceCard;
         this.value = value;
     }
+
+    isAce() {
+        if (this.faceCard === "A") {
+            return true;
+        }
+    }
+
+    aceValueChange() {
+        if (this.isAce()) {
+            this.value = 1;
+        }
+    }
 }
 
 
@@ -64,8 +76,8 @@ class Deck {
 
 //Players and House at table (house is always at last index of player array)
 class Table {
-    constructor(numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
+    constructor() {
+        this.numberOfPlayers = 1;
         this.playerArray = [];
     }
 
@@ -88,8 +100,8 @@ class Table {
         for (let i = 0; i < 2; i++) {
             for (let i = 0; i < this.numberOfPlayers + 1; i++) {
                 let topCard = deck.deckArray.pop();
-                if (topCard.faceCard === "A"){
-                    this.playerArray[i].aceCount ++;
+                if (topCard.faceCard === "A") {
+                    this.playerArray[i].aceCount++;
                 }
                 this.playerArray[i].hand.push(topCard);
                 this.playerArray[i].updatePoints();
@@ -98,8 +110,8 @@ class Table {
 
     }
 
-    resetTable(){
-        this.playerArray = []; 
+    resetTable() {
+        this.playerArray = [];
     }
 
 
@@ -116,6 +128,8 @@ class Player {
         this.bankroll = 0;
         this.bust = false;
         this.aceCount = 0;
+        this.stand = false;
+
     }
 
     updatePoints() {
@@ -135,26 +149,21 @@ class Player {
         this.bankroll -= bet;
     }
 
-    checkBust(){
-        if (this.points > 21){
-            if (this.containsAce()){
-                
+    checkBust() {
+        if (this.points > 21) {
+            if (this.containsAce()) {
+
             }
         }
     }
 
     containsAce() {
-        if (this.aceCount !== 0){
+        if (this.aceCount !== 0) {
             return true;
         }
-        else{
+        else {
             return false;
         }
-    }
-
-    aceValueChange(index){
-        this.hand[index].value = 1;
-        return this.hand[index].value;
     }
 
     hit() {
@@ -163,15 +172,102 @@ class Player {
         this.updatePoints();
     }
 
+    split() {
+        this.splitHand = [];
+        let splitCard = this.hand.pop();
+        this.splitHand.push(splitCard);
+
+    }
+
+    stay() {
+        this.stand = true;
+    }
+
+    doubleDown() {
+        if (this.bankroll >= this.liveBet) {
+            this.bankroll -= this.liveBet;
+            this.liveBet = this.livebet * 2;
+        }
+    }
+
+}
+
+
+// Similar to player class but with added decision making
+class House {
+    constructor() {
+        this.hand = [];
+        this.points = 0;
+        this.liveBet = 0;
+        this.bankroll = 0;
+        this.bust = false;
+        this.aceCount = 0;
+        this.stand = false;
+        this.blackjack = false;
+    }
+
+    makeDecision() {
+        if (this.points === 21) {
+            this.blackjack = true;
+            this.stay();
+        }
+
+        else if (this.points < 17) {
+            this.hit();
+        }
+
+        else if (this.points >= 17 && this.aceCount === 1) {
+            for (let card of hand) {
+                if (card.isAce()) {
+                    card.aceValueChange();
+                    this.hand.updatePoints();
+                }
+            }
+            this.makeDecision();
+            
+        }
+
+        else if (this.points >= 17 && this.aceCount === 2){
+            
+        }
+
+        else {
+            this.stay();
+        }
+    }
+
+    updatePoints() {
+        let sum = 0;
+        for (let card of this.hand) {
+            sum += card.value;
+        }
+        this.points = sum;
+    }
+
+    hit() {
+        this.hand.push(deck.pop());
+        this.checkBust();
+        this.updatePoints();
+    }
+
+    checkBust() {
+        if (this.points > 21) {
+            this.bust = true;
+        }
+    }
+
+    stay() {
+        this.stand = true;
+    }
+
 }
 
 
 
 
 
-
 const deck = new Deck();
-const table = new Table(2);
+const table = new Table();
 deck.initializeDeck();
 deck.shuffle();
 table.initializeTable();
