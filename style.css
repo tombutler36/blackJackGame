@@ -1,0 +1,43 @@
+html {
+    background-color: rgb(0, 85, 0);
+}
+
+#logo{
+    width: 250px;
+    height: auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -125px 0 0 -125px;
+    opacity: 0.4;
+}
+
+#cards{
+    border: 10px solid white;
+    border-radius: 10px;
+    position: absolute;
+    top: 65%;
+    left: 10%;
+    width: 40%;
+    height: 25%;
+}
+
+#io{
+    border: 10px solid white;
+    border-radius: 10px;
+    position: absolute;
+    width: 30%;
+    height: 25%;
+    top: 65%;
+    left: 65%;
+}
+
+#house{
+    border: 10px solid white;
+    border-radius: 10px;
+    position: absolute;
+    left: 40%;
+    top: 5%;
+    width: 20%;
+    height: 20%;
+}

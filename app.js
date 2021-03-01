@@ -4,20 +4,26 @@ const faceCards = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", 
 
 
 
+
 //Empty Card Object Constructor
-function Card(suit, faceCard, value){
-    this.suit = suit;
-    this.faceCard = faceCard;
-    this.value = value;
+
+class Card {
+    constructor(suit, faceCard, value) {
+        this.suit = suit;
+        this.faceCard = faceCard;
+        this.value = value;
+    }
 }
 
 
 
 //Deck and methods;
-var deck = {
-    deckArray: [],
+class Deck {
+    constructor() {
+        this.deckArray = [];
+    }
 
-    initializeDeck: function () {
+    initializeDeck() {
         for (let suit of suits) {
             for (let faceCard of faceCards) {
                 let value = 0;
@@ -30,16 +36,17 @@ var deck = {
                 else {
                     value = parseInt(faceCard);
                 }
-                newCard = new Card(suit, faceCard, value);
+                let newCard = new Card(suit, faceCard, value);
                 this.deckArray.push(newCard);
 
             }
         }
-    },
+
+    }
 
     // Fisher - Yates shuffle
 
-    shuffle: function () {
+    shuffle() {
         let currIndex = this.deckArray.length;
 
         while (0 !== currIndex) {
@@ -50,59 +57,129 @@ var deck = {
             this.deckArray[currIndex] = this.deckArray[randIndex];
             this.deckArray[randIndex] = temp;
         }
+
     }
 
 }
 
-//Players and House at table (house is always at index 0)
-var table = {
-    numberOfPlayers: 2,
-    players: [],
+//Players and House at table (house is always at last index of player array)
+class Table {
+    constructor(numberOfPlayers) {
+        this.numberOfPlayers = numberOfPlayers;
+        this.playerArray = [];
+    }
 
-    initializeTable: function () {
-        for (let i = 0; i < this.numberOfPlayers; i++) {
-            newPlayer = new player();
-            newPlayer.hand = [];
-            newPlayer.points = 0;
-            newPlayer.bankroll = 0; 
-            this.players.push(newPlayer);
+    initializeTable() {
+        for (let i = 0; i < this.numberOfPlayers + 1; i++) {
+            let newPlayer = new Player();
+
+            if (i != this.numberOfPlayers) {
+                newPlayer.name = `Player${i + 1}`
+            }
+            else {
+                newPlayer.name = "House"
+            }
+
+            this.playerArray.push(newPlayer);
         }
-    },
+    }
 
-    dealCards: function () {
-        for (let i = 0; i < 1; i++) {
-            for (let i = 0; i < this.players.length; i++) {
-                topCard = deck.deckArray.pop();
-                this.players[i].hand.push(topCard);
-                this.players[i].updatePoints();
+    dealCards() {
+        for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < this.numberOfPlayers + 1; i++) {
+                let topCard = deck.deckArray.pop();
+                if (topCard.faceCard === "A"){
+                    this.playerArray[i].aceCount ++;
+                }
+                this.playerArray[i].hand.push(topCard);
+                this.playerArray[i].updatePoints();
             }
         }
 
     }
 
+    resetTable(){
+        this.playerArray = []; 
+    }
+
+
+
+
+
+}
+
+class Player {
+    constructor() {
+        this.hand = [];
+        this.points = 0;
+        this.liveBet = 0;
+        this.bankroll = 0;
+        this.bust = false;
+        this.aceCount = 0;
+    }
+
+    updatePoints() {
+        let sum = 0;
+        for (let card of this.hand) {
+            sum += card.value;
+        }
+        this.points = sum;
+    }
+
+    addBankroll(money) {
+        this.bankroll += money;
+    }
+
+    addBet(bet) {
+        this.liveBet += bet;
+        this.bankroll -= bet;
+    }
+
+    checkBust(){
+        if (this.points > 21){
+            if (this.containsAce()){
+                
+            }
+        }
+    }
+
+    containsAce() {
+        if (this.aceCount !== 0){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    aceValueChange(index){
+        this.hand[index].value = 1;
+        return this.hand[index].value;
+    }
+
+    hit() {
+        this.hand.push(deck.pop());
+        this.checkBust();
+        this.updatePoints();
+    }
+
 }
 
 
-//Player Object
-var player = {
-    hand: [],
-    points: 0,
-    bankroll: 0
 
-    // updatePoints: function(){
-    //     let sum = 0;
-    //     for (let card of this.hand){
-    //         sum += card.value;
-    //     }
-    //     points = sum;
-    // }
 
-    
-}
 
+
+const deck = new Deck();
+const table = new Table(2);
 deck.initializeDeck();
 deck.shuffle();
-console.log(deck.deckArray);
+table.initializeTable();
+table.dealCards();
+
+console.log(table);
+
+
 // table.initializeTable();
 // console.log(table.players);
 // table.dealCards();
