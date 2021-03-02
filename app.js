@@ -2,9 +2,6 @@ const suits = ["Hearts", "Diamonds", "Spades", "Clubs"];
 const faceCards = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
 
-
-
-
 //Empty Card Object Constructor
 
 class Card {
@@ -83,20 +80,22 @@ class Table {
 
     initializeTable() {
         for (let i = 0; i < this.numberOfPlayers + 1; i++) {
-            let newPlayer = new Player();
-
             if (i != this.numberOfPlayers) {
+                let newPlayer = new Player();
                 newPlayer.name = `Player${i + 1}`
+                this.playerArray.push(newPlayer);
             }
             else {
-                newPlayer.name = "House"
+                let house = new House();
+                house.name = "House"
+                this.playerArray.push(house);
             }
 
-            this.playerArray.push(newPlayer);
+
         }
     }
 
-    dealCards() {
+    dealCards(deck) {
         for (let i = 0; i < 2; i++) {
             for (let i = 0; i < this.numberOfPlayers + 1; i++) {
                 let topCard = deck.deckArray.pop();
@@ -151,9 +150,7 @@ class Player {
 
     checkBust() {
         if (this.points > 21) {
-            if (this.containsAce()) {
-
-            }
+            this.bust = true;
         }
     }
 
@@ -166,8 +163,9 @@ class Player {
         }
     }
 
-    hit() {
-        this.hand.push(deck.pop());
+    hit(deck) {
+        let topCard = deck.deckArray.pop()
+        this.hand.push(topCard);
         this.checkBust();
         this.updatePoints();
     }
@@ -176,6 +174,10 @@ class Player {
         this.splitHand = [];
         let splitCard = this.hand.pop();
         this.splitHand.push(splitCard);
+        let splitBet = liveBet / 2;
+        this.splitBet = splitBet;
+        this.liveBet -= splitBet;
+
 
     }
 
@@ -186,7 +188,7 @@ class Player {
     doubleDown() {
         if (this.bankroll >= this.liveBet) {
             this.bankroll -= this.liveBet;
-            this.liveBet = this.livebet * 2;
+            this.liveBet = this.liveBet * 2;
         }
     }
 
@@ -213,22 +215,21 @@ class House {
         }
 
         else if (this.points < 17) {
-            this.hit();
+            this.hit(deck);
         }
 
-        else if (this.points >= 17 && this.aceCount === 1) {
-            for (let card of hand) {
+        else if (this.points > 21 && this.aceCount === 0) {
+            this.bust = true;
+        }
+
+        else if (this.points > 21 && this.aceCount !== 0) {
+            for (let card of this.hand) {
                 if (card.isAce()) {
                     card.aceValueChange();
                     this.hand.updatePoints();
                 }
             }
             this.makeDecision();
-            
-        }
-
-        else if (this.points >= 17 && this.aceCount === 2){
-            
         }
 
         else {
@@ -244,8 +245,9 @@ class House {
         this.points = sum;
     }
 
-    hit() {
-        this.hand.push(deck.pop());
+    hit(deck) {
+        let topCard = deck.deckArray.pop()
+        this.hand.push(topCard);
         this.checkBust();
         this.updatePoints();
     }
@@ -264,16 +266,81 @@ class House {
 
 
 
-
-
 const deck = new Deck();
 const table = new Table();
-deck.initializeDeck();
-deck.shuffle();
-table.initializeTable();
-table.dealCards();
 
-console.log(table);
+function startGame() {
+    gameOver = false;
+    let startingBankroll = parseInt(prompt("How much money are you starting with?"))
+
+    deck.initializeDeck();
+    deck.shuffle();
+    table.initializeTable();
+    table.dealCards(deck);
+
+    let player = table.playerArray[0];
+
+    player.bankroll = startingBankroll;
+    console.log(table);
+    
+    while (gameOver === false) {
+        if (player.bust === true) {
+            console.log("You Busted");
+            player.liveBet = 0;
+            gameOver = true;
+        }
+
+        let input = prompt("What would you like to do?");
+
+        if (input === "Hit") {
+            player.hit(deck);
+
+        }
+
+        else if (input === "Bet") {
+            let betAmount = -1;
+            while (betAmount <= 0 || betAmount > player.bankroll) {
+                betAmount = parseInt(prompt("How much would you like to bet?"));
+            }
+            player.liveBet += betAmount;
+            player.bankroll -= betAmount;
+            prompt(`Your bet is now ${player.liveBet}`);
+            prompt(`Your bankroll is now ${player.bankroll}`)
+
+        }
+
+        else if (input === "Stay") {
+            player.stay()
+        }
+
+
+        else if (input === "See Hand"){
+
+        }
+
+        else if (input === "Quit"){
+            console.log("You Are quitting the game, you lose all your money");
+            gameOver = true;
+        }
+        
+
+
+
+
+
+
+
+    }
+}
+
+const startGameButton = document.querySelector("#startGame");
+
+startGameButton.addEventListener("click", startGame);
+
+
+
+
+
 
 
 // table.initializeTable();
