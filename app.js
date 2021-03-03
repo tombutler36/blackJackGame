@@ -2,6 +2,7 @@ const suits = ["Hearts", "Diamonds", "Spades", "Clubs"];
 const faceCards = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 const userCardArea = document.querySelector("#userCardArea");
 const startingBankRoll = 1000;
+const startingHouseMoney = 10000;
 
 //Empty Card Object Constructor
 
@@ -31,15 +32,15 @@ class Card {
         location.setAttribute("src", `${this.imgSource}`);
     }
 
-    renderHouseCard(position){
+    renderHouseCard(position) {
         let location = document.querySelector(`.houseCard${position}`);
-        if (position === 1){
+        if (position === 1) {
             location.setAttribute("src", `${this.cardBack}`);
         }
-        else{
+        else {
             location.setAttribute("src", `${this.imgSource}`);
         }
-        
+
     }
 
 
@@ -115,6 +116,7 @@ class Table {
             else {
                 let house = new House();
                 house.name = "House"
+                house.renderBankRoll();
                 this.playerArray.push(house);
             }
 
@@ -135,8 +137,8 @@ class Table {
                     topCard.renderCard(i + 1);
                     this.playerArray[j].renderPoints()
                 }
-                if (j === this.numberOfPlayers){
-                    topCard.renderHouseCard(i+1);
+                if (j === this.numberOfPlayers) {
+                    topCard.renderHouseCard(i + 1);
                 }
             }
         }
@@ -144,14 +146,14 @@ class Table {
     }
 
     resetTable() {
-        for (let i = 0; i < this.numberOfPlayers + 1; i++){
-            if(i === this.numberOfPlayers){
+        for (let i = 0; i < this.numberOfPlayers + 1; i++) {
+            if (i === this.numberOfPlayers) {
                 this.playerArray[this.numberOfPlayers].resetHouse()
             }
-            else{
+            else {
                 this.playerArray[i].resetPlayer();
             }
-            
+
         }
 
     }
@@ -220,6 +222,9 @@ class Player {
         if (this.bust === true) {
             bustButtons();
         }
+        else {
+            endOfTurn();
+        }
 
 
     }
@@ -237,6 +242,7 @@ class Player {
 
     stay() {
         this.stand = true;
+        endOfTurn();
     }
 
     doubleDown() {
@@ -247,6 +253,7 @@ class Player {
     }
 
     clearLiveBet() {
+        table.playerArray[table.numberOfPlayers].addBankroll(this.liveBet);
         this.liveBet = 0;
         this.renderLiveBet();
     }
@@ -277,10 +284,10 @@ class Player {
 
     renderBankRoll() {
         let bankrollNumber = document.querySelector("#bankrollNumber");
-        bankrollNumber.innerHTML = `${this.bankroll}`;
+        bankrollNumber.innerHTML = `${parseInt(this.bankroll)}`;
     }
 
-    resetPlayer(){
+    resetPlayer() {
         this.hand = [];
         this.points = 0;
         this.liveBet = 0;
@@ -298,7 +305,7 @@ class House {
         this.hand = [];
         this.points = 0;
         this.liveBet = 0;
-        this.bankroll = 0;
+        this.bankroll = startingHouseMoney;
         this.bust = false;
         this.aceCount = 0;
         this.stand = false;
@@ -306,32 +313,36 @@ class House {
     }
 
     makeDecision() {
-        if (this.points === 21) {
-            this.blackjack = true;
-            this.stay();
-        }
-
-        else if (this.points < 17) {
-            this.hit(deck);
-        }
-
-        else if (this.points > 21 && this.aceCount === 0) {
-            this.bust = true;
-        }
-
-        else if (this.points > 21 && this.aceCount !== 0) {
-            for (let card of this.hand) {
-                if (card.isAce()) {
-                    card.aceValueChange();
-                    this.hand.updatePoints();
-                }
+        if (this.stand === false) {
+            if (this.points === 21) {
+                this.blackjack = true;
+                this.stay();
             }
-            this.makeDecision();
+
+            else if (this.points < 17) {
+                this.hit(deck);
+            }
+
+            // else if (this.points > 21 && this.aceCount === 0) {
+            //     this.bust = true;
+            //     this.renderPoints();
+            // }
+
+            // else if (this.points > 21 && this.aceCount !== 0) {
+            //     for (let card of this.hand) {
+            //         if (card.isAce()) {
+            //             card.aceValueChange();
+            //             this.hand.updatePoints();
+            //         }
+            //     }
+            //     this.makeDecision();
+            // }
+
+            else {
+                this.stay();
+            }
         }
 
-        else {
-            this.stay();
-        }
     }
 
     updatePoints() {
@@ -342,11 +353,23 @@ class House {
         this.points = sum;
     }
 
+    addBankroll(amount) {
+        this.bankroll += amount;
+        this.renderBankRoll();
+    }
+
     hit(deck) {
         let topCard = deck.deckArray.pop()
         this.hand.push(topCard);
+        let spot = this.hand.length;
+        topCard.renderHouseCard(spot);
         this.checkBust();
         this.updatePoints();
+        if (this.bust === true) {
+            this.renderBust();
+        }
+
+
     }
 
     checkBust() {
@@ -359,7 +382,7 @@ class House {
         this.stand = true;
     }
 
-    resetHouse(){
+    resetHouse() {
         this.hand = [];
         this.points = 0;
         this.liveBet = 0;
@@ -369,6 +392,26 @@ class House {
         this.blackjack = false;
     }
 
+    renderBust() {
+        bustButtons()
+        housePoints.innerHTML = "BUST";
+        housePoints.style.color = "red";
+        this.renderAllCards();
+    }
+
+    renderBankRoll() {
+        houseBankrollNumber.innerHTML = `${this.bankroll}`
+    }
+
+    renderAllCards() {
+        for (let i = 0; i < this.hand.length; i++) {
+            let cardVisual = document.querySelector(`houseCard${i + 1}`);
+            let card = hand[i];
+            cardVisual.setAttribute("src", `${card.imgSource}`)
+        }
+    }
+
+
 }
 
 
@@ -376,7 +419,9 @@ const scoreArea = document.querySelector("#score");
 const liveBet = document.querySelector("#liveBet");
 const liveBetNumber = document.querySelector("#liveBetNumber");
 const bankrollNumber = document.querySelector("#bankrollNumber");
-
+const housePoints = document.querySelector("#housePointsValue");
+const houseBankrollNumber = document.querySelector("#houseBankrollNumber");
+const result = document.querySelector("#result");
 
 var deck = new Deck();
 var table = new Table();
@@ -384,14 +429,12 @@ var table = new Table();
 
 
 function startGame() {
-    gameOver = false;
-
     deck.initializeDeck();
     deck.shuffle();
     table.initializeTable();
     table.dealCards(deck);
     activateButtons();
-
+    renderYourTurn();
 }
 
 function reset() {
@@ -401,6 +444,10 @@ function reset() {
     liveBet.innerHTML = "";
     liveBetNumber.innerHTML = "0";
     bankrollNumber.innerHTML = "0"
+    housePoints.innerHTML = "";
+    housePoints.style.color = "white";
+    houseBankrollNumber.innerHTML = "";
+    result.innerHTML = "";
     clearBettingArea();
     resetButtons();
     deck = new Deck();
@@ -413,6 +460,8 @@ function nextHand() {
     scoreArea.innerHTML = "";
     liveBet.innerHTML = "";
     liveBetNumber.innerHTML = "0";
+    housePoints.innerHTML = "";
+    housePoints.style.color = "white";
     clearBettingArea();
     resetButtons();
     table.resetTable();
@@ -421,7 +470,8 @@ function nextHand() {
     deck.shuffle();
     table.dealCards(deck);
     activateButtons();
-    
+    renderYourTurn();
+
 }
 
 
@@ -462,6 +512,18 @@ function bustButtons() {
     }
 }
 
+function cpuTurnButtons() {
+    let buttons = document.querySelectorAll("button");
+    for (let button of buttons) {
+        if (button.id === "reset") {
+            button.removeAttribute("disabled");
+        }
+        else {
+            button.disabled = "true";
+        }
+    }
+}
+
 function renderCoins(amount) {
     let bettingCoins = document.querySelectorAll(".coinStack");
     if (amount <= 1000) {
@@ -485,7 +547,7 @@ function clearBettingArea() {
     bettingCoins[2].setAttribute("src", "");
 }
 
-function clearCards(){
+function clearCards() {
     let cards = document.querySelectorAll(".card");
     let houseCards = document.querySelectorAll(".houseCard");
     for (let card of cards) {
@@ -496,11 +558,88 @@ function clearCards(){
     }
 }
 
+function renderYourTurn(){
+    result.innerHTML = "Your Turn";
+}
 
-function houseTurn(){
+function renderCPUTurn(){
+    result.innerHTML = "CPU Turn";
+}
+
+function renderYouWin(){
+    result.innerHTML = "You Win";
+}
+
+function renderYouLose(){
+    if (table.playerArray[0].bust === true){
+        result.innerHTML = "Busted, you lose";
+    }
+    else{
+        result.innerHTML = "House had higher cards, You lose";
+    }
     
 }
 
+function renderTie(){
+    result.innerHTML = "Push! Bet returned"
+}
+
+function houseTurn() {
+    let house = table.playerArray[table.numberOfPlayers]
+    if (house.stand === false) {
+        house.makeDecision();
+    }
+    activateButtons();
+    if (allStand() === true){
+        endOfGame();
+    }
+    else{
+        renderYourTurn();
+    }
+}
+
+function endOfTurn() {
+    cpuTurnButtons();
+    renderCPUTurn();
+    setTimeout(houseTurn, 1000);
+}
+
+
+function allStand(){
+    for (let player of table.playerArray){
+        if (player.stand === false){
+            return false;
+        }
+    }
+    return true;
+}
+
+function endOfGame(){
+    let houseScore = table.playerArray[table.numberOfPlayers].points;
+    let playerScore = table.playerArray[0].points;
+    if (playerScore > houseScore){
+        playerWins();
+    }
+
+    else if (playerScore < houseScore){
+        houseWins();
+    }
+    else{
+        push();
+    }
+}
+
+function houseWins(){
+    renderYouLose()
+}
+
+function playerWins(){
+    renderYouWin()
+}
+
+function push(){
+
+}
 
 const startGameButton = document.querySelector("#startGame");
 startGameButton.addEventListener("click", startGame);
@@ -510,6 +649,11 @@ hitButton.addEventListener("click", () => {
     table.playerArray[0].hit(deck);
 });
 
+const stayButton = document.querySelector("#stayButton");
+stayButton.addEventListener("click", () => {
+    table.playerArray[0].stay();
+})
+
 const resetButton = document.querySelector("#reset");
 resetButton.addEventListener("click", reset);
 
@@ -517,17 +661,23 @@ resetButton.addEventListener("click", reset);
 const nextHandButton = document.querySelector("#nextHand");
 nextHandButton.addEventListener("click", nextHand);
 
-const addBankrollButton = document.querySelector("#addBankroll");
-addBankrollButton.addEventListener("click", () => {
-    let input = parseInt(prompt("How much would you like to deposit?"));
-    table.playerArray[0].addBankroll(input);
 
+const addBetForm = document.querySelector("#addBetForm");
+addBetForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let submit = document.querySelector("#addBet");
+    let value = parseInt(submit.value);
+    table.playerArray[0].addBet(value);
+    submit.value = "";
 
-});
+})
 
-
-const addBetButton = document.querySelector("#addBet");
-addBetButton.addEventListener("click", () => {
-    let input = parseInt(prompt("How much would you like to bet?"));
-    table.playerArray[0].addBet(input);
-});
+const addBankrollForm = document.querySelector("#addBankrollForm");
+addBankrollForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let submit = document.querySelector("#addBankroll");
+    let value = parseInt(submit.value);
+    console.log(value);
+    table.playerArray[0].addBankroll(value);
+    submit.value = "";
+})

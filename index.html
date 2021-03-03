@@ -41,15 +41,21 @@
         </div>
         <div>
             <button id="hitButton" disabled=true>Hit</button>
-            <button disabled=true>Stay</button>
+            <button disabled=true id="stayButton">Stay</button>
             <button disabled=true>Split</button>
             <button disabled=true>Double Down</button>
             <button disabled=true>Toggle Ace Value</button>
             <button disabled=true>Surrender</button>
         </div>
         <div>
-            <button disabled=true id="addBet">Add Bet</button>
-            <button id="addBankroll" disabled=true>Add Bankroll</button>
+            <form action="" id="addBetForm">
+                <input type="number" name="addBet" id="addBet">
+                <button disabled=true>Add Bet</button>
+            </form>
+            <form action="" id="addBankrollForm">
+                <input type="number" name="addBankroll" id="addBankroll">
+                <button disabled=true>Add Bankroll</button>
+            </form>
         </div>
 
     </div>
@@ -76,7 +82,18 @@
         <span class="stashValue" id="bankrollNumber">0</span>
     </div>
 
+    <div id="houseMoney">
+        <span>Bankroll:</span>
+        <span id="houseBankrollNumber"></span>
+    </div>
 
+    <div id="housePoints">
+        <span id="housePointsValue"></span>
+    </div>
+
+    <div id="resultArea">
+        <span id="result">Click Start Game to begin</span>
+    </div>
 
     <script src="app.js"></script>
 </body>

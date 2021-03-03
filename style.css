@@ -112,6 +112,56 @@ html {
     left: 40%;
 }
 
+
+#houseMoney{
+    background-color: rgb(0, 63, 0);
+    text-align: center;
+    border-radius: 8px;
+    position: absolute;
+    width: 10%;
+    height: 25%;
+    left: 70%;
+    top: 5%;
+}
+
+#houseMoney span{
+    display: block;
+    color: white;
+    font-size: 2rem;
+}
+
+#housePoints{
+    background-color: rgb(0, 63, 0);
+    text-align: center;
+    border-radius: 8px;
+    position: absolute;
+    width: 10%;
+    height: 10%;
+    left: 15%;
+    top: 5%;
+}
+
+#housePointsValue{
+    color: white;
+    font-size: 3rem;
+}
+
+#resultArea{
+    background-color: rgb(0, 63, 0);
+    text-align: center;
+    border-radius: 8px;
+    position: absolute;
+    width: 50%;
+    height: 5%;
+    left: 25%;
+    top: 93%;
+}
+
+#resultArea span{
+    color: white;
+    font-size: 2rem;
+}
+
 ul{
     list-style: none;
 }
