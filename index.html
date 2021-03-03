@@ -16,28 +16,67 @@
     <img src="/images/bitcoin.png" alt="" id="logo">
 
     <div id="cards">
-
+        <ul id="#userCardArea">
+            <li><img src="" alt="" class="card card1"></li>
+            <li><img src="" alt="" class="card card2"></li>
+            <li><img src="" alt="" class="card card3"></li>
+            <li><img src="" alt="" class="card card4"></li>
+            <li><img src="" alt="" class="card card5"></li>
+        </ul>
     </div>
 
     <div id="house">
-
+        <ul>
+            <li><img src="" alt="" class="houseCard houseCard1"></li>
+            <li><img src="" alt="" class="houseCard houseCard2"></li>
+            <li><img src="" alt="" class="houseCard houseCard3"></li>
+            <li><img src="" alt="" class="houseCard houseCard4"></li>
+        </ul>
     </div>
     <div id="io">
-        <button id="startGame">Start Game</button>
-        <button>Hit</button>
-        <button>Stay</button>
-        <button>Split</button>
-        <button>Double Down</button>
-        <button>Surrender</button>
-        <button>Add Bet</button>
-        <button>Add Bankroll</button>
-        <button>Toggle Ace Value</button>
+        <div>
+            <button id="startGame">Start Game</button>
+            <button id="nextHand" disabled=true>Next Hand</button>
+            <button id="reset" disabled=true>Reset</button>
+        </div>
+        <div>
+            <button id="hitButton" disabled=true>Hit</button>
+            <button disabled=true>Stay</button>
+            <button disabled=true>Split</button>
+            <button disabled=true>Double Down</button>
+            <button disabled=true>Toggle Ace Value</button>
+            <button disabled=true>Surrender</button>
+        </div>
+        <div>
+            <button disabled=true id="addBet">Add Bet</button>
+            <button id="addBankroll" disabled=true>Add Bankroll</button>
+        </div>
 
+    </div>
+
+    <div id="scoreArea">
+        <span id="score"></span>
     </div>
 
     <div id="betArea">
         <span id="bettingLabel">Betting Area</span>
+        <img src="" alt="" class="coinStack coinStack1">
+        <img src="" alt="" class="coinStack coinStack2">
+        <img src="" alt="" class="coinStack coinStack3">
+        <span id="liveBetTracker">Value: <span id="liveBet"></span></span>
+
     </div>
+
+    <div id="stash">
+        <span>Profit:</span>
+        <span class="stashValue">0</span>
+        <span>Livebet:</span>
+        <span class="stashValue" id="liveBetNumber">0</span>
+        <span>Bankroll:</span>
+        <span class="stashValue" id="bankrollNumber">0</span>
+    </div>
+
+
 
     <script src="app.js"></script>
 </body>
