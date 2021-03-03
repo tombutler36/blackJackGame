@@ -1,2 +1,2 @@
 # blackJackGame
-Browser based black jack game using Javascript, HTML, CSS. Still In progress. Will have a front end playing board, House decision making, Fisher-Yates shuffling algorithm and more. Future ideas is to incorporate into wider casino game with game options such as poker and roullete.
+Browser based black jack game using Javascript, HTML, CSS. Still In progress. Current build allows most functionality and visuals. Still need to add input authentication and more game utility options (such as split or double down). Has front end playing board, House decision making, Fisher-Yates shuffling algorithm and more. Future ideas is to incorporate into wider casino game with game options such as poker and roullete and add other cpu players with more fleshed out AI.
