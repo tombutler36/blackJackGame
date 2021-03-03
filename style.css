@@ -162,6 +162,64 @@ html {
     font-size: 2rem;
 }
 
+
+#gameButtons button{
+    font-size: 1.5rem;
+    border-radius: 5px;
+}
+
+#startGame{
+    background-color: royalblue;
+    color: white;
+}
+
+#startGame:disabled{
+    background-color: rgb(199, 199, 199);
+}
+
+#nextHand{
+    background-color: rgb(255, 182, 46);
+    color: white;
+}
+
+#nextHand:disabled{
+    background-color: rgb(199, 199, 199);
+}
+
+#reset {
+    background-color: red;
+    color: white;
+}
+
+#reset:disabled{
+    background-color: rgb(199, 199, 199);
+}
+
+
+#turnButtons button{
+    font-size: 1.2rem;
+    background-color: rgb(78, 78, 78);
+    color: white;
+}
+
+#turnButtons button:disabled{
+    background-color: rgb(199, 199, 199);
+}
+
+#moneyInput input{
+    font-size: 1.5rem;
+}
+
+#moneyInput button{
+    font-size: 1.5rem;
+    background-color: rgb(78, 78, 78);
+    color: white;
+}
+
+#moneyInput button:disabled{
+    background-color: rgb(199, 199, 199);
+}
+
 ul{
     list-style: none;
 }
@@ -256,5 +314,10 @@ ul{
 
 .houseCard4{
     left: 70%;
+    top: 5%;
+}
+
+.houseCard5{
+    left: 100%;
     top: 5%;
 }

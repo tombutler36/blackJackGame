@@ -141,7 +141,10 @@ class Table {
                     topCard.renderHouseCard(i + 1);
                 }
             }
+
         }
+        table.playerArray[0].checkBlackJack();
+
 
     }
 
@@ -173,7 +176,14 @@ class Player {
         this.bust = false;
         this.aceCount = 0;
         this.stand = false;
+        this.blackjack = false;
 
+    }
+
+    checkBlackJack() {
+        if (this.points === 21 && this.hand.length === 2) {
+            this.blackjack = true;
+        }
     }
 
     updatePoints() {
@@ -252,6 +262,8 @@ class Player {
         }
     }
 
+
+
     clearLiveBet() {
         table.playerArray[table.numberOfPlayers].addBankroll(this.liveBet);
         this.liveBet = 0;
@@ -263,8 +275,10 @@ class Player {
         if (this.points > 21) {
             scoreArea.innerHTML = "BUST";
             scoreArea.style.color = "red";
+            renderYouLose();
             this.clearLiveBet();
             clearBettingArea();
+            table.playerArray[table.numberOfPlayers].renderAllCards();
         }
         else {
             scoreArea.innerHTML = `${this.points}`
@@ -361,12 +375,21 @@ class House {
     hit(deck) {
         let topCard = deck.deckArray.pop()
         this.hand.push(topCard);
+        this.updatePoints();
         let spot = this.hand.length;
         topCard.renderHouseCard(spot);
-        this.checkBust();
         this.updatePoints();
+        this.checkBust();
         if (this.bust === true) {
             this.renderBust();
+            clearBettingArea();
+            table.playerArray[0].liveBet = 0;
+            table.playerArray[0].renderLiveBet(table.playerArray[0].liveBet);
+            endOfRoundButtons();
+        }
+        else {
+            renderYourTurn();
+            activateButtons();
         }
 
 
@@ -380,6 +403,13 @@ class House {
 
     stay() {
         this.stand = true;
+        renderYourTurn();
+        activateButtons();
+    }
+
+    subtractBankroll(amount){
+        this.bankroll -= amount;
+        this.renderBankRoll();
     }
 
     resetHouse() {
@@ -393,9 +423,11 @@ class House {
     }
 
     renderBust() {
-        bustButtons()
+        endOfRoundButtons()
         housePoints.innerHTML = "BUST";
         housePoints.style.color = "red";
+        result.innerHTML = "House busted, you win!"
+        payWinner();
         this.renderAllCards();
     }
 
@@ -405,10 +437,11 @@ class House {
 
     renderAllCards() {
         for (let i = 0; i < this.hand.length; i++) {
-            let cardVisual = document.querySelector(`houseCard${i + 1}`);
-            let card = hand[i];
+            let cardVisual = document.querySelector(`.houseCard${i + 1}`);
+            let card = this.hand[i];
             cardVisual.setAttribute("src", `${card.imgSource}`)
         }
+        housePoints.innerHTML = `${this.points}`
     }
 
 
@@ -524,19 +557,36 @@ function cpuTurnButtons() {
     }
 }
 
+function endOfRoundButtons() {
+    let buttons = document.querySelectorAll("button");
+    for (let button of buttons) {
+        if (button.id === "reset" || button.id === "nextHand" || button.id === "addBankroll") {
+            button.removeAttribute("disabled");
+        }
+        else {
+            button.disabled = "true";
+        }
+    }
+}
+
 function renderCoins(amount) {
     let bettingCoins = document.querySelectorAll(".coinStack");
-    if (amount <= 1000) {
+    if (amount <= 1000 && amount > 0) {
         bettingCoins[0].setAttribute("src", "/images/bitcoinStack.png");
     }
     else if (amount > 1000 && amount <= 10000) {
         bettingCoins[0].setAttribute("src", "/images/bitcoinStack.png");
         bettingCoins[1].setAttribute("src", "/images/bitcoinStack.png");
     }
-    else {
+    else if (amount > 10000) {
         bettingCoins[0].setAttribute("src", "/images/bitcoinStack.png");
         bettingCoins[1].setAttribute("src", "/images/bitcoinStack.png");
         bettingCoins[2].setAttribute("src", "/images/bitcoinStack.png");
+    }
+    else {
+        bettingCoins[0].setAttribute("src", "");
+        bettingCoins[1].setAttribute("src", "");
+        bettingCoins[2].setAttribute("src", "");
     }
 }
 
@@ -558,29 +608,35 @@ function clearCards() {
     }
 }
 
-function renderYourTurn(){
+function renderYourTurn() {
     result.innerHTML = "Your Turn";
 }
 
-function renderCPUTurn(){
+function renderCPUTurn() {
     result.innerHTML = "CPU Turn";
 }
 
-function renderYouWin(){
-    result.innerHTML = "You Win";
-}
-
-function renderYouLose(){
-    if (table.playerArray[0].bust === true){
-        result.innerHTML = "Busted, you lose";
+function renderYouWin() {
+    if (table.playerArray[0].blackjack === true){
+        result.innerHTML = "BlackJack, You win!"
     }
     else{
-        result.innerHTML = "House had higher cards, You lose";
+        result.innerHTML = "You had higher cards, You Win!";
     }
     
 }
 
-function renderTie(){
+function renderYouLose() {
+    if (table.playerArray[0].bust === true) {
+        result.innerHTML = "Busted, you lose";
+    }
+    else {
+        result.innerHTML = "House had higher cards, You lose";
+    }
+
+}
+
+function renderTie() {
     result.innerHTML = "Push! Bet returned"
 }
 
@@ -589,11 +645,11 @@ function houseTurn() {
     if (house.stand === false) {
         house.makeDecision();
     }
-    activateButtons();
-    if (allStand() === true){
+    else if (allStand() === true) {
         endOfGame();
     }
-    else{
+    else {
+        activateButtons();
         renderYourTurn();
     }
 }
@@ -605,41 +661,86 @@ function endOfTurn() {
 }
 
 
-function allStand(){
-    for (let player of table.playerArray){
-        if (player.stand === false){
+function allStand() {
+    for (let player of table.playerArray) {
+        if (player.stand === false) {
             return false;
         }
     }
     return true;
 }
 
-function endOfGame(){
+function endOfGame() {
     let houseScore = table.playerArray[table.numberOfPlayers].points;
     let playerScore = table.playerArray[0].points;
-    if (playerScore > houseScore){
+    if (playerScore > houseScore) {
         playerWins();
     }
 
-    else if (playerScore < houseScore){
+    else if (playerScore < houseScore) {
         houseWins();
     }
-    else{
+    else {
         push();
     }
 }
 
-function houseWins(){
-    renderYouLose()
+function houseWins() {
+    renderYouLose();
+    houseCollects();
+    clearBettingArea();
+    table.playerArray[0].liveBet = 0;
+    table.playerArray[0].renderLiveBet(table.playerArray[0].liveBet);
+    table.playerArray[table.numberOfPlayers].renderAllCards();
+    endOfRoundButtons();
 }
 
-function playerWins(){
-    renderYouWin()
+function playerWins() {
+    renderYouWin();
+    payWinner();
+    clearBettingArea();
+    table.playerArray[0].liveBet = 0;
+    table.playerArray[0].renderLiveBet(table.playerArray[0].liveBet);
+    table.playerArray[table.numberOfPlayers].renderAllCards();
+    endOfRoundButtons();
 }
 
-function push(){
+function push() {
+    renderTie();
+    payPush();
+    clearBettingArea();
+    table.playerArray[0].liveBet = 0;
+    table.playerArray[0].renderLiveBet(table.playerArray[0].liveBet);
+    table.playerArray[table.numberOfPlayers].renderAllCards();
+    endOfRoundButtons();
+}
+
+function payWinner() {
+    let betAmount = table.playerArray[0].liveBet;
+    if (table.playerArray[0].blackjack === true) {
+        let winnings = betAmount + (betAmount * (3 / 2));
+        console.log(winnings);
+        table.playerArray[0].addBankroll(winnings);
+        table.playerArray[table.numberOfPlayers].subtractBankroll(winnings);
+    }
+    else {
+        let winnings = betAmount * 2;
+        table.playerArray[0].addBankroll(winnings);
+        table.playerArray[table.numberOfPlayers].subtractBankroll(winnings);
+    }
+}
+
+function houseCollects() {
+    let betAmount = table.playerArray[0].liveBet;
+    table.playerArray[table.numberOfPlayers].addBankroll(betAmount);
 
 }
+
+function payPush() {
+    let betAmount = table.playerArray[0].liveBet;
+    table.playerArray[0].addBankroll(betAmount);
+}
+
 
 const startGameButton = document.querySelector("#startGame");
 startGameButton.addEventListener("click", startGame);
