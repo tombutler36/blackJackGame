@@ -42,12 +42,6 @@ class Card {
         }
 
     }
-
-
-
-
-
-
 }
 
 
@@ -310,8 +304,6 @@ class Player {
 
 }
 
-
-// Similar to player class but with added decision making
 class House {
     constructor() {
         this.hand = [];
@@ -455,6 +447,8 @@ class House {
 }
 
 
+//Starting hand/game
+
 const scoreArea = document.querySelector("#score");
 const liveBet = document.querySelector("#liveBet");
 const liveBetNumber = document.querySelector("#liveBetNumber");
@@ -465,6 +459,7 @@ const result = document.querySelector("#result");
 
 var deck = new Deck();
 var table = new Table();
+
 
 
 
@@ -514,6 +509,8 @@ function nextHand() {
 
 }
 
+
+//Activating/deactivating button functionality
 
 function activateButtons() {
     let buttons = document.querySelectorAll("button");
@@ -575,6 +572,8 @@ function endOfRoundButtons() {
         }
     }
 }
+
+//Rendering and clearing visuals
 
 function renderCoins(amount) {
     let bettingCoins = document.querySelectorAll(".coinStack");
@@ -658,6 +657,8 @@ function renderTie() {
 function renderDoubleDown(){
     result.innerHTML = "Double Down!"
 }
+
+// general game functions
 
 function houseTurn() {
     let house = table.playerArray[table.numberOfPlayers]
