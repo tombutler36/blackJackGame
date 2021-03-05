@@ -173,9 +173,16 @@ html {
     color: white;
 }
 
+#startGame:hover{
+    cursor: pointer;
+}
+
 #startGame:disabled{
     background-color: rgb(199, 199, 199);
+    cursor: default;
 }
+
+
 
 #nextHand{
     background-color: rgb(255, 182, 46);
@@ -196,13 +203,13 @@ html {
 }
 
 
-#turnButtons button{
+.turnButtons{
     font-size: 1.2rem;
     background-color: rgb(78, 78, 78);
     color: white;
 }
 
-#turnButtons button:disabled{
+.turnButtons:disabled{
     background-color: rgb(199, 199, 199);
 }
 

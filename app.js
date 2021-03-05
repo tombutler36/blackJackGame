@@ -177,6 +177,7 @@ class Player {
         this.aceCount = 0;
         this.stand = false;
         this.blackjack = false;
+        this.surrender = false;
 
     }
 
@@ -229,12 +230,7 @@ class Player {
         let spot = this.hand.length;
         topCard.renderCard(spot);
         this.renderPoints();
-        if (this.bust === true) {
-            bustButtons();
-        }
-        else {
-            endOfTurn();
-        }
+        
 
 
     }
@@ -252,7 +248,6 @@ class Player {
 
     stay() {
         this.stand = true;
-        endOfTurn();
     }
 
     doubleDown() {
@@ -262,6 +257,9 @@ class Player {
         }
     }
 
+    surrenderHand(){
+        this.surrender = true;
+    }
 
 
     clearLiveBet() {
@@ -331,6 +329,9 @@ class House {
             if (this.points === 21) {
                 this.blackjack = true;
                 this.stay();
+                if (allStand() === true) {
+                    endOfGame();
+                }
             }
 
             else if (this.points < 17) {
@@ -354,6 +355,9 @@ class House {
 
             else {
                 this.stay();
+                if (allStand() === true) {
+                    endOfGame();
+                }
             }
         }
 
@@ -386,6 +390,9 @@ class House {
             table.playerArray[0].liveBet = 0;
             table.playerArray[0].renderLiveBet(table.playerArray[0].liveBet);
             endOfRoundButtons();
+        }
+        else if (allStand() === true){
+            endOfGame();
         }
         else {
             renderYourTurn();
@@ -608,6 +615,8 @@ function clearCards() {
     }
 }
 
+// Render Text
+
 function renderYourTurn() {
     result.innerHTML = "Your Turn";
 }
@@ -628,16 +637,26 @@ function renderYouWin() {
 
 function renderYouLose() {
     if (table.playerArray[0].bust === true) {
-        result.innerHTML = "Busted, you lose";
+        result.innerHTML = "Busted, you lose!";
+    }
+    else if (table.playerArray[table.numberOfPlayers].blackjack === true){
+        result.innerHTML = "House had Black Jack, you lose!"
+    }
+    else if (table.playerArray[0].surrender === true){
+        result.innerHTML = "You surrender! House collects half of live bet"
     }
     else {
-        result.innerHTML = "House had higher cards, You lose";
+        result.innerHTML = "House had higher cards, you lose!";
     }
 
 }
 
 function renderTie() {
     result.innerHTML = "Push! Bet returned"
+}
+
+function renderDoubleDown(){
+    result.innerHTML = "Double Down!"
 }
 
 function houseTurn() {
@@ -657,7 +676,7 @@ function houseTurn() {
 function endOfTurn() {
     cpuTurnButtons();
     renderCPUTurn();
-    setTimeout(houseTurn, 1000);
+    setTimeout(houseTurn, 2000);
 }
 
 
@@ -715,6 +734,16 @@ function push() {
     endOfRoundButtons();
 }
 
+function surrender(){
+    table.playerArray[0].surrenderHand();
+    renderYouLose();
+    surrenderPay();
+    table.playerArray[0].liveBet = 0;
+    table.playerArray[0].renderLiveBet(table.playerArray[0].liveBet);
+    table.playerArray[table.numberOfPlayers].renderAllCards();
+    endOfRoundButtons();
+}
+
 function payWinner() {
     let betAmount = table.playerArray[0].liveBet;
     if (table.playerArray[0].blackjack === true) {
@@ -741,6 +770,15 @@ function payPush() {
     table.playerArray[0].addBankroll(betAmount);
 }
 
+function surrenderPay(){
+    let betAmount = table.playerArray[0].liveBet;
+    let returnAmount = betAmount/2;
+    table.playerArray[0].addBankroll(returnAmount);
+    table.playerArray[table.numberOfPlayers].addBankroll(returnAmount);
+}
+
+
+// Button Functionality
 
 const startGameButton = document.querySelector("#startGame");
 startGameButton.addEventListener("click", startGame);
@@ -748,11 +786,18 @@ startGameButton.addEventListener("click", startGame);
 const hitButton = document.querySelector("#hitButton");
 hitButton.addEventListener("click", () => {
     table.playerArray[0].hit(deck);
+    if (table.playerArray[0].bust === true) {
+        bustButtons();
+    }
+    else {
+        endOfTurn();
+    }
 });
 
 const stayButton = document.querySelector("#stayButton");
 stayButton.addEventListener("click", () => {
     table.playerArray[0].stay();
+    endOfTurn();
 })
 
 const resetButton = document.querySelector("#reset");
@@ -761,6 +806,29 @@ resetButton.addEventListener("click", reset);
 
 const nextHandButton = document.querySelector("#nextHand");
 nextHandButton.addEventListener("click", nextHand);
+
+
+
+const doubleDownButton = document.querySelector("#doubleDown");
+doubleDownButton.addEventListener("click", () => {
+    let currentLiveBet = table.playerArray[0].liveBet;
+    table.playerArray[0].addBet(currentLiveBet);
+    renderDoubleDown();
+    setTimeout(() =>{
+        table.playerArray[0].stay();
+    table.playerArray[0].hit(deck);
+    if (table.playerArray[0].bust === true) {
+        bustButtons();
+    }
+    else {
+        endOfTurn();
+    }
+    }, 1000);
+})
+
+
+const surrenderButton = document.querySelector("#surrender");
+surrenderButton.addEventListener("click", surrender);
 
 
 const addBetForm = document.querySelector("#addBetForm");
